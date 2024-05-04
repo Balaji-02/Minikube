@@ -1,3 +1,10 @@
+name: Deploy to Minikube
+
+on:
+  push:
+    branches:
+      - main
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
