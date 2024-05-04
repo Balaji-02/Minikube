@@ -1,0 +1,33 @@
+name: CI
+on:
+  pull_request:
+    branches:
+      - '*'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build example and deploy to Minikube
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Start Minikube
+        uses: medyagh/setup-minikube@master
+      - name: Try the cluster
+        run: kubectl get pods -A
+      - name: Build image
+        run: |
+          export SHELL=/bin/bash
+          eval $(minikube -p minikube docker-env)
+          docker build -f Dockerfile -t local/example .
+          echo -n "verifying images:"
+          docker images
+      - name: Deploy to Minikube
+        run: kubectl apply -f .github/deploy-to-minikube.yaml
+      - name: Test service URLs
+        run: |
+          minikube service list
+          minikube service example --url
+          echo "Opening the service"
+          curl $(minikube service example --url)
+      - name: Check if entered number is prime
+        run: python check_prime.py
